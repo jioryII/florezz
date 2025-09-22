@@ -1,7 +1,7 @@
 <?php
 
 $host = 'opal18.opalstack.com';
-$dbname = 'flower_notes';
+$dbname = 'flores_db';
 $username = 'jiory';
 $password = '3fwPqEHLOwWT680';
 
