@@ -409,7 +409,7 @@
     </div>
     
     <div class="bottom-left-message" id="bottomLeft">
-      ------- de parte de juan
+      ---------
     </div>
   </div>
 
@@ -429,11 +429,9 @@
   </div>
 
   <!-- audio loop -->
-  <iframe class="background-audio" 
-          src="https://www.youtube.com/embed/zLqDrEN5VSc?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&enablejsapi=1&loop=1&playlist=zLqDrEN5VSc" 
-          frameborder="0" 
-          allow="autoplay; encrypted-media">
-  </iframe>
+  <audio id="backgroundAudio" preload="auto" loop>
+    <source src="musicafond.mp3" type="audio/mpeg">
+  </audio>
 
 <body class="container">
   <div class="night"></div>
@@ -1057,18 +1055,40 @@
       loadNotes();
       checkForNewNotes();
 
-      function iniciarAudio() {
-        const iframe = document.querySelector('.background-audio');
-        if (iframe) {
-          iframe.src = iframe.src;
-        }
-      }
+function iniciarAudio() {
+  const audio = document.getElementById('backgroundAudio');
+  if (audio) {
+    audio.volume = 0.5; 
+    audio.play().catch(e => {
+      console.log('Audio no se pudo reproducir automáticamente:', e);
+
+      mostrarBotonPlay();
+    });
+  }
+}
 
       setTimeout(iniciarAudio, 1000);
       document.addEventListener('click', iniciarAudio, { once: true });
       document.addEventListener('touchstart', iniciarAudio, { once: true });
     });
 
+
+    function mostrarBotonPlay() {
+  const playBtn = document.createElement('button');
+  playBtn.innerHTML = '🎵';
+  playBtn.style.cssText = `
+    position: fixed; top: 20px; left: 20px; z-index: 10001;
+    background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
+    width: 50px; height: 50px; font-size: 20px; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  `;
+  playBtn.onclick = () => {
+    const audio = document.getElementById('backgroundAudio');
+    audio.play();
+    playBtn.remove();
+  };
+  document.body.appendChild(playBtn);
+}
     
 function makeDraggable(element) {
   let isDragging = false;
