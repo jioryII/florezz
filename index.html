@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Yellow flowers</title>
+  <link rel="stylesheet" href="./style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+
+    @font-face {
+      font-family: 'Julietta-Messie';
+      src: url('') format('opentype'),
+           url('Claudette aime le Chocolat.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    .message-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      font-family: 'Julietta-Messie', cursive, serif;
+    }
+
+
+    .main-message {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      text-align: center;
+      color: #ff69b4;
+      font-size: clamp(3rem, 12vw, 8rem);
+      font-weight: bold;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      opacity: 0;
+      animation: aparecer 1.5s ease-in-out 3s forwards;
+    }
+
+
+    .letter {
+      display: inline-block;
+      animation: ondaLetra 3s ease-in-out infinite;
+    }
+
+
+    .bottom-right-message {
+      position: absolute;
+      bottom: 8%;
+      right: 5%;
+      color: white;
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+      opacity: 0;
+      animation: aparecer 1.5s ease-in-out 5s forwards;
+      max-width: 400px;
+      text-align: right;
+    }
+
+    .bottom-left-message {
+      position: absolute;
+      bottom: 8%;
+      left: 5%;
+      color: white;
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+      opacity: 0;
+      animation: aparecer 1.5s ease-in-out 7s forwards;
+    }
+
+
+    .notes-btn {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #FF8C42, #FF6B35);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 35px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 10000;
+      box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
+      transition: all 0.3s ease;
+      pointer-events: all;
+    }
+
+    .notes-btn:hover {
+      transform: translateY(-50%) scale(1.15);
+      box-shadow: 0 8px 25px rgba(255, 140, 66, 0.6);
+      background: linear-gradient(135deg, #FF6B35, #FF8C42);
+    }
+
+    .notes-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+
+    .notes-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 10001;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 35px;
+      border-radius: 25px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+      font-family: 'Julietta-Messie', cursive;
+    }
+
+    .note-input {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      resize: vertical;
+      font-family: Arial, sans-serif;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #FF8C42, #FF6B35);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+    }
+
+    .btn-cancel {
+      background: linear-gradient(135deg, #f44336, #da190b);
+      color: white;
+      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .notes-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .note-item {
+      position: absolute;
+      width: 200px;
+      min-height: 180px;
+      padding: 20px 15px 25px 15px;
+      border-radius: 0;
+      box-shadow: 
+        0 4px 8px rgba(0,0,0,0.1),
+        0 8px 16px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      position: relative;
+      animation: aparecer-nota 0.6s ease-out;
+      transform: rotate(var(--rotation, 0deg));
+      pointer-events: all;
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      background: var(--note-bg);
+      border-left: 3px solid rgba(255,255,255,0.3);
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .note-item::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-5deg);
+      width: 50px;
+      height: 20px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .note-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 24px,
+        rgba(0,0,0,0.1) 24px,
+        rgba(0,0,0,0.1) 25px
+      );
+      pointer-events: none;
+    }
+
+    .note-text {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      margin-bottom: 8px;
+    }
+
+    .note-time {
+      font-size: 11px;
+      color: #666;
+      text-align: right;
+    }
+
+    .note-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 1;
+    }
+
+    .note-delete:hover {
+      background: #ff4444;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .color-1 { --note-bg: linear-gradient(135deg, #FFE4B5, #FFEAA7); }
+    .color-2 { --note-bg: linear-gradient(135deg, #FFB6C1, #FFA8C5); }
+    .color-3 { --note-bg: linear-gradient(135deg, #98FB98, #90EE90); }
+    .color-4 { --note-bg: linear-gradient(135deg, #ADD8E6, #87CEEB); }
+    .color-5 { --note-bg: linear-gradient(135deg, #F0E68C, #FFFFE0); }
+    .color-6 { --note-bg: linear-gradient(135deg, #DDA0DD, #E6E6FA); }
+    .color-7 { --note-bg: linear-gradient(135deg, #FFB347, #FFDAB9); }
+    .color-8 { --note-bg: linear-gradient(135deg, #F5DEB3, #FFF8DC); }
+
+    .background-audio {
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px) scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px) scale(1);
+      }
+    }
+
+    @keyframes ondaLetra {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-8px) rotate(2deg);
+      }
+      50% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      75% {
+        transform: translateY(8px) rotate(-2deg);
+      }
+    }
+
+    @keyframes aparecer-nota {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.3) rotate(calc(var(--rotation, 0deg) + 180deg));
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0px) scale(1) rotate(var(--rotation, 0deg));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-message {
+        top: 12%;
+        width: 95%;
+        font-size: clamp(3.5rem, 15vw, 10rem);
+      }
+      
+      .bottom-right-message {
+        bottom: 12%;
+        right: 3%;
+        max-width: 300px;
+        font-size: clamp(2rem, 6vw, 4rem);
+      }
+      
+      .bottom-left-message {
+        bottom: 3%;
+        left: 3%;
+        font-size: clamp(2rem, 6vw, 4rem);
+      }
+
+      .notes-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 30px;
+        right: 15px;
+      }
+
+      .note-item {
+        width: 180px;
+        min-height: 160px;
+        padding: 18px 12px 22px 12px;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 25px;
+      }
+    }
+
+    .heart-glow {
+      color: #ff1493;
+      filter: drop-shadow(0 0 15px #ff69b4);
+      animation: pulso-corazon 2s ease-in-out infinite;
+    }
+
+    @keyframes pulso-corazon {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 15px #ff69b4);
+      }
+      50% {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 25px #ff1493);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="message-overlay">
+    <div class="main-message" id="mainMessage">
+      Un ramo de flores pa´ti ♥
+    </div>
+    
+    <div class="bottom-right-message" id="bottomRight">
+      que tengas un hermoso día <br> así como tú
+    </div>
+    
+    <div class="bottom-left-message" id="bottomLeft">
+      ------- de parte de juan
+    </div>
+  </div>
+
+  <button class="notes-btn" onclick="openNotesModal()">+</button>
+
+  <div class="notes-container" id="notesContainer"></div>
+  
+  <div class="notes-modal" id="notesModal">
+    <div class="modal-content">
+      <h3 style="font-family: Arial, sans-serif;">Agregar una nota</h3>
+      <textarea class="note-input" id="noteInput" placeholder="Escribe tu nota aquí..."></textarea>
+      <div class="modal-buttons">
+        <button class="btn btn-save" onclick="saveNote()">Guardar</button>
+        <button class="btn btn-cancel" onclick="closeNotesModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- audio loop -->
+  <iframe class="background-audio" 
+          src="https://www.youtube.com/embed/zLqDrEN5VSc?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&enablejsapi=1&loop=1&playlist=zLqDrEN5VSc" 
+          frameborder="0" 
+          allow="autoplay; encrypted-media">
+  </iframe>
+
+<body class="container">
+  <div class="night"></div>
+  <div class="flowers">
+    <div class="flower flower--1">
+      <div class="flower__leafs flower__leafs--1">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+        <div class="flower__line__leaf flower__line__leaf--5"></div>
+        <div class="flower__line__leaf flower__line__leaf--6"></div>
+      </div>
+    </div>
+
+    <div class="flower flower--2">
+      <div class="flower__leafs flower__leafs--2">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+
+    <div class="flower flower--3">
+      <div class="flower__leafs flower__leafs--3">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+    <div class="flower flower--4">
+      <div class="flower__leafs flower__leafs--3">
+        <div class="flower__leaf flower__leaf--1"></div>
+        <div class="flower__leaf flower__leaf--2"></div>
+        <div class="flower__leaf flower__leaf--3"></div>
+        <div class="flower__leaf flower__leaf--4"></div>
+        <div class="flower__white-circle"></div>
+
+        <div class="flower__light flower__light--1"></div>
+        <div class="flower__light flower__light--2"></div>
+        <div class="flower__light flower__light--3"></div>
+        <div class="flower__light flower__light--4"></div>
+        <div class="flower__light flower__light--5"></div>
+        <div class="flower__light flower__light--6"></div>
+        <div class="flower__light flower__light--7"></div>
+        <div class="flower__light flower__light--8"></div>
+
+      </div>
+      <div class="flower__line">
+        <div class="flower__line__leaf flower__line__leaf--1"></div>
+        <div class="flower__line__leaf flower__line__leaf--2"></div>
+        <div class="flower__line__leaf flower__line__leaf--3"></div>
+        <div class="flower__line__leaf flower__line__leaf--4"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:1.2s">
+      <div class="flower__g-long">
+        <div class="flower__g-long__top"></div>
+        <div class="flower__g-long__bottom"></div>
+      </div>
+    </div>
+
+    <div class="growing-grass">
+      <div class="flower__grass flower__grass--1">
+        <div class="flower__grass--top"></div>
+        <div class="flower__grass--bottom"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--1"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--2"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--3"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--4"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--5"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--6"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--7"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--8"></div>
+        <div class="flower__grass__overlay"></div>
+      </div>
+    </div>
+
+    <div class="growing-grass">
+      <div class="flower__grass flower__grass--2">
+        <div class="flower__grass--top"></div>
+        <div class="flower__grass--bottom"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--1"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--2"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--3"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--4"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--5"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--6"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--7"></div>
+        <div class="flower__grass__leaf flower__grass__leaf--8"></div>
+        <div class="flower__grass__overlay"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.4s">
+      <div class="flower__g-right flower__g-right--1">
+        <div class="leaf"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.8s">
+      <div class="flower__g-right flower__g-right--2">
+        <div class="leaf"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:2.8s">
+      <div class="flower__g-front">
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--1">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--2">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--3">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--4">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--5">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--6">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--7">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--8">
+          <div class="flower__g-front__leaf"></div>
+        </div>
+        <div class="flower__g-front__line"></div>
+      </div>
+    </div>
+
+    <div class="grow-ans" style="--d:3.2s">
+      <div class="flower__g-fr">
+        <div class="leaf"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--1"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--2"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--3"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--4"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--5"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--6"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--7"></div>
+        <div class="flower__g-fr__leaf flower__g-fr__leaf--8"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--0">
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:2.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--1">
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.8s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--2">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.4s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--3">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--4">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--5">
+      <div class="grow-ans" style="--d:4s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--6">
+      <div class="grow-ans" style="--d:4.2s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.4s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.6s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:4.8s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+
+    <div class="long-g long-g--7">
+      <div class="grow-ans" style="--d:3s">
+        <div class="leaf leaf--0"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.2s">
+        <div class="leaf leaf--1"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.5s">
+        <div class="leaf leaf--2"></div>
+      </div>
+      <div class="grow-ans" style="--d:3.6s">
+        <div class="leaf leaf--3"></div>
+      </div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+  <div class="bubbles">
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+    </div>
+    <div class="bubble"><svg class="heart" viewBox="0 0 32 32">
+        <title>heart22</title>
+        <path d="M23.6 2c-3.363 0-6.258 2.736-7.599 5.594-1.342-2.858-4.237-5.594-7.601-5.594-4.637 0-8.4 3.764-8.4 8.401 0 9.433 9.516 11.906 16.001 21.232 6.13-9.268 15.999-12.1 15.999-21.232 0-4.637-3.763-8.401-8.4-8.401z"></path>
+      </svg>
+</body>
+
+  <script  src="./script.js"></script>
+  <script>
+    let notes = [];
+    let lastNoteCount = 0;
+
+
+
+    function getRandomPosition() {
+  const noteWidth = 220;
+  const noteHeight = 200;
+  const safeWidth = window.innerWidth * 0.6;
+  const safeHeight = window.innerHeight * 0.5;
+  
+  const startX = (window.innerWidth - safeWidth) / 2;
+  const startY = (window.innerHeight - safeHeight) / 2;
+  
+  const maxX = startX + safeWidth - noteWidth;
+  const maxY = startY + safeHeight - noteHeight;
+  
+  return {
+    left: Math.max(startX, Math.min(startX + Math.random() * (safeWidth - noteWidth), maxX)) + 'px',
+    top: Math.max(startY, Math.min(startY + Math.random() * (safeHeight - noteHeight), maxY)) + 'px'
+  };
+}
+
+
+    async function loadNotes() {
+      try {
+        const response = await fetch('api.php?t=' + Date.now()); 
+        const newNotes = await response.json();
+        
+        if (newNotes.length !== notes.length) {
+          notes = newNotes;
+          renderNotes();
+        }
+      } catch (error) {
+        console.error('Error cargando notas:', error);
+      }
+    }
+
+    async function saveNote() {
+      const noteText = document.getElementById('noteInput').value.trim();
+      if (!noteText) return;
+
+      try {
+        const response = await fetch('api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: noteText })
+        });
+
+        if (response.ok) {
+          const newNote = await response.json();
+          notes.unshift(newNote);
+          closeNotesModal();
+          renderNotes();
+          
+          setTimeout(loadNotes, 500);
+        }
+      } catch (error) {
+        console.error('Error guardando nota:', error);
+        alert('Error al guardar la nota');
+      }
+    }
+
+    function getOpacityForNote(index, totalNotes) {
+  if (index === 0) return 1;
+  const fadeStart = Math.min(5, totalNotes);
+  if (index >= fadeStart) return 0;
+  return 1 - (index / fadeStart) * 0.9;
+}
+
+    async function deleteNote(id) {
+      try {
+        const response = await fetch('api.php', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: id })
+        });
+
+        if (response.ok) {
+          notes = notes.filter(note => note.id !== id);
+          renderNotes();
+          setTimeout(loadNotes, 500);
+        }
+      } catch (error) {
+        console.error('Error eliminando nota:', error);
+        alert('Error al eliminar la nota');
+      }
+    }
+
+    function checkForNewNotes() {
+      loadNotes();
+      setTimeout(checkForNewNotes, 2000);
+    }
+    function renderNotes() {
+  const container = document.getElementById('notesContainer');
+  container.innerHTML = '';
+
+  const visibleNotes = notes.filter((note, index) => getOpacityForNote(index, notes.length) > 0);
+
+  visibleNotes.forEach((note, index) => {
+    const noteDiv = document.createElement('div');
+    const position = getRandomPosition();
+    const opacity = getOpacityForNote(index, notes.length);
+    const scale = Math.max(1 - (index * 0.03), 0.85);
+    const blur = index > 2 ? `blur(${(index - 2) * 0.8}px)` : 'none';
+    
+    noteDiv.className = `note-item ${note.color}`;
+    noteDiv.style.setProperty('--rotation', `${note.rotation}deg`);
+    noteDiv.style.left = position.left;
+    noteDiv.style.top = position.top;
+    noteDiv.style.zIndex = 9998 - index;
+    noteDiv.style.opacity = opacity;
+    noteDiv.style.transform = `rotate(${note.rotation}deg) scale(${scale})`;
+    noteDiv.style.filter = blur;
+    noteDiv.style.transition = 'all 0.4s ease';
+    noteDiv.style.pointerEvents = index > 3 ? 'none' : 'all';
+    noteDiv.style.position = 'absolute';
+    noteDiv.style.cursor = 'move';
+    
+    noteDiv.innerHTML = `
+      <button class="note-delete" onclick="deleteNote(${note.id})" style="opacity: ${opacity > 0.5 ? 1 : 0.3}">×</button>
+      <div class="note-text">${note.text}</div>
+      <div class="note-time">${note.timestamp}</div>
+    `;
+    
+    makeDraggable(noteDiv);
+    container.appendChild(noteDiv);
+  });
+}
+
+    function openNotesModal() {
+      document.getElementById('notesModal').style.display = 'flex';
+      document.getElementById('noteInput').focus();
+    }
+
+    function closeNotesModal() {
+      document.getElementById('notesModal').style.display = 'none';
+      document.getElementById('noteInput').value = '';
+    }
+
+
+    function animateLetters() {
+      const elements = [
+        document.getElementById('mainMessage'),
+        document.getElementById('bottomRight'), 
+        document.getElementById('bottomLeft')
+      ];
+
+      elements.forEach((element, elementIndex) => {
+        if (!element) return;
+        
+        const text = element.innerHTML;
+        const letters = text.split('').map((letter, index) => {
+          if (letter === ' ') return ' ';
+          if (letter === '<') {
+            let tag = letter;
+            let i = index + 1;
+            while (i < text.length && text[i] !== '>') {
+              tag += text[i];
+              i++;
+            }
+            if (i < text.length) tag += text[i];
+            return tag;
+          }
+          
+          const delay = (elementIndex * 0.5) + (index * 0.1);
+          return `<span class="letter" style="animation-delay: ${delay}s">${letter}</span>`;
+        });
+
+        element.innerHTML = letters.join('');
+      });
+    }
+
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeNotesModal();
+      }
+    });
+
+
+    window.addEventListener('resize', function() {
+      setTimeout(renderNotes, 100);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(animateLetters, 4000);
+      loadNotes();
+      checkForNewNotes();
+
+      function iniciarAudio() {
+        const iframe = document.querySelector('.background-audio');
+        if (iframe) {
+          iframe.src = iframe.src;
+        }
+      }
+
+      setTimeout(iniciarAudio, 1000);
+      document.addEventListener('click', iniciarAudio, { once: true });
+      document.addEventListener('touchstart', iniciarAudio, { once: true });
+    });
+
+    
+function makeDraggable(element) {
+  let isDragging = false;
+  let startX, startY, initialX, initialY;
+
+  element.addEventListener('mousedown', startDrag);
+  element.addEventListener('touchstart', startDrag, { passive: false });
+
+  function startDrag(e) {
+    if (e.target.classList.contains('note-delete')) return;
+    
+    isDragging = true;
+    element.style.transition = 'none';
+    element.style.zIndex = '10000';
+    
+    if (e.type === 'mousedown') {
+      startX = e.clientX;
+      startY = e.clientY;
+    } else {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+    
+    initialX = parseInt(element.style.left) || 0;
+    initialY = parseInt(element.style.top) || 0;
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+    
+    e.preventDefault();
+  }
+
+  function drag(e) {
+    if (!isDragging) return;
+    
+    let clientX, clientY;
+    if (e.type === 'mousemove') {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    } else {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    
+    const deltaX = clientX - startX;
+    const deltaY = clientY - startY;
+    
+    const newX = Math.max(0, Math.min(initialX + deltaX, window.innerWidth - 220));
+    const newY = Math.max(0, Math.min(initialY + deltaY, window.innerHeight - 200));
+    
+    element.style.left = newX + 'px';
+    element.style.top = newY + 'px';
+    
+    e.preventDefault();
+  }
+
+  function stopDrag() {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    element.style.transition = 'all 0.4s ease';
+    element.style.zIndex = '';
+    
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchmove', drag);
+    document.removeEventListener('touchend', stopDrag);
+  }
+}
+  </script>
+</body>
+</html>
